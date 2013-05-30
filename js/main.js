@@ -79,13 +79,18 @@ function onDocumentMouseDown( event ) {
 
     if ( intersects.length > 0 ) {
         console.log(intersects[0].object.name);
-        infoText.innerHTML = intersects[0].object.name;
-        infoWindow.style.display = "inline";
+        showInfoPanel(intersects[0].object.name);
 //        var particle = new THREE.Particle( particleMaterial );
 //        particle.position = intersects[ 0 ].point;
 //        particle.scale.x = particle.scale.y = 8;
 //        scene.add( particle );
     }
+}
+
+function showInfoPanel(text)
+{
+    infoText.innerHTML = text;
+    infoWindow.style.display = "inline";
 }
 
 function onWindowResize() {

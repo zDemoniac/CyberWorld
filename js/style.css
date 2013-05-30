@@ -9,7 +9,7 @@ div.transbox
     position: fixed;
     top: 1px;
     left: 1px;
-    width: 120px;
+    width: 115px;
     height: 150px;
     margin: 2px 2px;
     background-color: rgba(0, 0, 0, 0.7);
@@ -24,4 +24,5 @@ div.transbox p
     margin: 4px 4px;
     font-weight: bold;
     color: rgb(200, 200, 200);
+    text-align: center;
 }
