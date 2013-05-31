@@ -3,12 +3,14 @@ var sceneName = argv.scene ? argv.scene : "game";
 var camera, scene, projector, renderer;
 var objects = [];
 var particleMaterial;
-var mesh;
 
-var bgColor = 0x3A3938;
+var unitSpawnPosition = THREE.Vector3(0);
+
+//var bgColor = 0x3A3938;
 
 var infoText = document.getElementById("infoText");
 var infoWindow = document.getElementById("infoWindow");
+var buttonAddUnit = document.getElementById("addUnit");
 
 init();
 animate();
@@ -63,6 +65,9 @@ function onSceneLoaded(result)
         if (obj instanceof THREE.Mesh)
             scene.add(obj);
     }
+
+    // set specific
+    unitSpawnPosition = result.objects["BaseGreen.Spawn"].position;
 }
 
 function onDocumentMouseDown( event ) {
@@ -90,7 +95,21 @@ function onDocumentMouseDown( event ) {
 function showInfoPanel(text)
 {
     infoText.innerHTML = text;
-    infoWindow.style.display = "inline";
+    //infoWindow.style.display = "inline";
+
+    if (text == "BaseGreen") {
+        buttonAddUnit.style.display = "inline";
+    } else {
+        buttonAddUnit.style.display = "none";
+    }
+}
+
+function addUnit() {
+    var geometry = new THREE.CubeGeometry( 1, 1, 1 );
+    var object = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x00ff00 } ) );
+    object.position = unitSpawnPosition;
+    object.name = "Unit";
+    scene.add( object );
 }
 
 function onWindowResize() {

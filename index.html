@@ -3,11 +3,14 @@
 	<head>
 		<title>.:: CyberWorld ::.</title>
 		<meta charset="utf-8">
-        <link href="js/style.css" rel="stylesheet" type="text/css">
+        <link href="js/style.css" rel="stylesheet">
 	</head>
 	<body>
         <div class="transbox" id="infoWindow">
-            <p id="infoText">This is some text</p>
+            <p id="infoText">click object</p>
+            <div class="buttonWrapper">
+                <button class="flat" id="addUnit" style="display: none" onclick="addUnit();">add unit</button>
+            </div>
         </div>
 		<script src="js/three.min.js"></script>
 		<script src="js/utils.js"></script>
