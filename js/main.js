@@ -6,6 +6,8 @@ var particleMaterial;
 
 var unitSpawnPosition = THREE.Vector3(0);
 
+var selectedObject  = null;
+
 //var bgColor = 0x3A3938;
 
 var infoText = document.getElementById("infoText");
@@ -14,9 +16,10 @@ var buttonAddUnit = document.getElementById("addUnit");
 
 init();
 animate();
-function echo(text)
+
+function log(text)
 {
-    document.write(text);
+    console.log(text);
 }
 
 function init() {
@@ -33,7 +36,8 @@ function init() {
 	//sceneLoader.callbackProgress = callbackProgress;
     sceneLoader.load( "scenes/"+sceneName+".js", onSceneLoaded);
 
-    document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+    //document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+    document.getElementsByTagName("canvas")[0].addEventListener( 'mousedown', onDocumentMouseDown, false );
 	window.addEventListener( 'resize', onWindowResize, false );
 }
 
@@ -80,11 +84,20 @@ function onDocumentMouseDown( event ) {
     var raycaster = new THREE.Raycaster( camera.position, vector.sub(camera.position).normalize() );
     var intersects = raycaster.intersectObjects( scene.__objects );
 
-    console.log(intersects);
+    log(intersects);
 
     if ( intersects.length > 0 ) {
-        console.log(intersects[0].object.name);
-        showInfoPanel(intersects[0].object.name);
+        log("intersects[0]="+intersects[0].object.name);
+        if(selectedObject) log("selectedObject="+selectedObject.name);
+
+        if (selectedObject && selectedObject.name === "Unit" && intersects[0].object.name === "Floor") {
+            log("GO!");
+        }
+        else {
+            selectedObject = intersects[0].object;
+
+            showInfoPanel(selectedObject.name);
+        }
 //        var particle = new THREE.Particle( particleMaterial );
 //        particle.position = intersects[ 0 ].point;
 //        particle.scale.x = particle.scale.y = 8;
@@ -112,6 +125,10 @@ function addUnit() {
     scene.add( object );
 }
 
+function onInfoWindowClick() {
+
+}
+
 function onWindowResize() {
     if (camera == null) return;
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -127,4 +144,5 @@ function animate() {
         //camera.lookAt( scene.position );
         renderer.render( scene, camera );
     }
+    isClickGUI = false;
 }
