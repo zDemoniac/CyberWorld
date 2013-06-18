@@ -6,7 +6,7 @@
         <link href="js/style.css" rel="stylesheet">
 	</head>
 	<body>
-        <div class="transbox" id="infoWindow">
+        <div class="transbox" id="infoWindow"  onclick="onInfoWindowClick();">
             <p id="infoText">click object</p>
             <div class="buttonWrapper">
                 <button class="flat" id="addUnit" style="display: none" onclick="addUnit();">add unit</button>
@@ -14,7 +14,7 @@
         </div>
 		<script src="js/three.min.js"></script>
 		<script src="js/utils.js"></script>
-        <!-- <script src="js/steering.js"></script> -->
+        <script src="js/steering.js"></script>
         <!-- <script src="js/test.js"></script> -->
         <script src="js/main.js"></script>
     </body>
