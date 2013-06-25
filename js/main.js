@@ -8,6 +8,10 @@ var unitSpawnPosition = THREE.Vector3(0);
 
 var selectedObject  = null;
 
+var unit = null;
+
+var clock = new THREE.Clock();
+
 //var bgColor = 0x3A3938;
 
 var infoText = document.getElementById("infoText");
@@ -92,6 +96,7 @@ function onDocumentMouseDown( event ) {
 
         if (selectedObject && selectedObject.name === "Unit" && intersects[0].object.name === "Floor") {
             log("GO!");
+            unit.goal = intersects[0].point;
         }
         else {
             selectedObject = intersects[0].object;
@@ -118,11 +123,13 @@ function showInfoPanel(text)
 }
 
 function addUnit() {
-    var geometry = new THREE.CubeGeometry( 1, 1, 1 );
-    var object = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x00ff00 } ) );
-    object.position = unitSpawnPosition;
-    object.name = "Unit";
-    scene.add( object );
+//    var geometry = new THREE.CubeGeometry( 1, 1, 1 );
+//    var object = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x00ff00 } ) );
+//    object.position = unitSpawnPosition;
+//    object.name = "Unit";
+//    scene.add( object );
+    var loader = new THREE.JSONLoader();
+    unit = new Unit0(scene, unitSpawnPosition, loader);
 }
 
 function onInfoWindowClick() {
@@ -141,8 +148,8 @@ function animate() {
     requestAnimationFrame( animate );
 
 	if (scene != null && camera != null) {
+        if (unit && unit.mesh) unit.prerender(clock.getDelta());
         //camera.lookAt( scene.position );
         renderer.render( scene, camera );
     }
-    isClickGUI = false;
 }
