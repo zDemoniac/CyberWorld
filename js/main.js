@@ -4,11 +4,11 @@ var camera, scene, projector, renderer;
 var objects = [];
 var particleMaterial;
 
-var unitSpawnPosition = THREE.Vector3(0);
+var unitSpawnPosition;
 
 var selectedObject  = null;
 
-var unit = null;
+var units = [];
 
 var clock = new THREE.Clock();
 
@@ -29,6 +29,7 @@ function log(text)
 function init() {
     renderer = new THREE.WebGLRenderer();
 	renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.shadowMapEnabled = true;
 	document.body.appendChild( renderer.domElement );
 
 	camera = new THREE.PerspectiveCamera( 67, window.innerWidth / window.innerHeight, 1, 100 );
@@ -56,9 +57,23 @@ function onSceneLoaded(result)
                 
     scene.add( new THREE.AmbientLight( 0xF3F3F3 ) );
 
-  	//var light = new THREE.DirectionalLight( 0xFFEEBB );
-   	//light.position.set( -5, 15, -5 );
-   	//scene.add( light );
+  	var light = new THREE.DirectionalLight( 0xdfebff, 0.1 );
+
+    light.castShadow = true;
+    //light.shadowCameraVisible = true;
+    light.shadowMapWidth = 2048;
+    light.shadowMapHeight = 2048;
+
+    var d = 25;
+    light.shadowCameraLeft = -d;
+    light.shadowCameraRight = d;
+    light.shadowCameraTop = d;
+    light.shadowCameraBottom = -d;
+
+    light.shadowCameraFar = 70;
+    light.shadowDarkness = 0.1;
+   	light.position = result.objects["Light1"].position;
+   	scene.add( light );
 
 //    var meshLoader = new THREE.JSONLoader();
 //    meshLoader.load( "models/base02.js", function( geometry, materials ) {
@@ -70,8 +85,11 @@ function onSceneLoaded(result)
     // add all meshes from loaded to scene
     for (object in result.objects) {
         var obj = result.objects[object];
-        if (obj instanceof THREE.Mesh)
+        if (obj instanceof THREE.Mesh) {
+            //obj.castShadow = true;
+            obj.receiveShadow = true;
             scene.add(obj);
+        }
     }
 
     // set specific
@@ -90,13 +108,16 @@ function onDocumentMouseDown( event ) {
 
     log(intersects);
 
-    if ( intersects.length > 0 ) {
+    if (intersects.length > 0) {
         log("intersects[0]="+intersects[0].object.name);
         if(selectedObject) log("selectedObject="+selectedObject.name);
 
         if (selectedObject && selectedObject.name === "Unit" && intersects[0].object.name === "Floor") {
             log("GO!");
-            unit.goal = intersects[0].point;
+            for ( var i = 0; i < units.length; i++ ) {
+                if (units[i].mesh.position == selectedObject.position)
+                    units[i].goal = new THREE.Vector3(intersects[0].point.x, units[i].mesh.position.y, intersects[0].point.z);
+            }
         }
         else {
             selectedObject = intersects[0].object;
@@ -123,13 +144,8 @@ function showInfoPanel(text)
 }
 
 function addUnit() {
-//    var geometry = new THREE.CubeGeometry( 1, 1, 1 );
-//    var object = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x00ff00 } ) );
-//    object.position = unitSpawnPosition;
-//    object.name = "Unit";
-//    scene.add( object );
     var loader = new THREE.JSONLoader();
-    unit = new Unit0(scene, unitSpawnPosition, loader);
+    units.push(new Unit0(scene, unitSpawnPosition, loader));
 }
 
 function onInfoWindowClick() {
@@ -146,9 +162,11 @@ function onWindowResize() {
 
 function animate() {
     requestAnimationFrame( animate );
+    var deltaTime = clock.getDelta();
 
 	if (scene != null && camera != null) {
-        if (unit && unit.mesh) unit.prerender(clock.getDelta());
+        for ( var i = 0; i < units.length; i++ )
+            units[i].prerender(deltaTime);
         //camera.lookAt( scene.position );
         renderer.render( scene, camera );
     }
