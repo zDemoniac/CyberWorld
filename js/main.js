@@ -29,6 +29,7 @@ function log(text)
 function init() {
     renderer = new THREE.WebGLRenderer();
 	renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.shadowMapEnabled = true;
 	document.body.appendChild( renderer.domElement );
 
 	camera = new THREE.PerspectiveCamera( 67, window.innerWidth / window.innerHeight, 1, 100 );
@@ -56,9 +57,23 @@ function onSceneLoaded(result)
                 
     scene.add( new THREE.AmbientLight( 0xF3F3F3 ) );
 
-  	//var light = new THREE.DirectionalLight( 0xFFEEBB );
-   	//light.position.set( -5, 15, -5 );
-   	//scene.add( light );
+  	var light = new THREE.DirectionalLight( 0xdfebff, 0.1 );
+
+    light.castShadow = true;
+    //light.shadowCameraVisible = true;
+    light.shadowMapWidth = 2048;
+    light.shadowMapHeight = 2048;
+
+    var d = 25;
+    light.shadowCameraLeft = -d;
+    light.shadowCameraRight = d;
+    light.shadowCameraTop = d;
+    light.shadowCameraBottom = -d;
+
+    light.shadowCameraFar = 70;
+    light.shadowDarkness = 0.1;
+   	light.position = result.objects["Light1"].position;
+   	scene.add( light );
 
 //    var meshLoader = new THREE.JSONLoader();
 //    meshLoader.load( "models/base02.js", function( geometry, materials ) {
@@ -70,8 +85,11 @@ function onSceneLoaded(result)
     // add all meshes from loaded to scene
     for (object in result.objects) {
         var obj = result.objects[object];
-        if (obj instanceof THREE.Mesh)
+        if (obj instanceof THREE.Mesh) {
+            //obj.castShadow = true;
+            obj.receiveShadow = true;
             scene.add(obj);
+        }
     }
 
     // set specific
