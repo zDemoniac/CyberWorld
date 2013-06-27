@@ -27,7 +27,11 @@ function log(text)
 }
 
 function init() {
-    renderer = new THREE.WebGLRenderer();
+    if ( Detector.webgl )
+		renderer = new THREE.WebGLRenderer( {antialias:false} );
+	else
+		renderer = new THREE.CanvasRenderer();
+
 	renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.shadowMapEnabled = true;
 	document.body.appendChild( renderer.domElement );
@@ -44,6 +48,13 @@ function init() {
     //document.addEventListener( 'mousedown', onDocumentMouseDown, false );
     document.getElementsByTagName("canvas")[0].addEventListener( 'mousedown', onDocumentMouseDown, false );
 	window.addEventListener( 'resize', onWindowResize, false );
+
+    // displays current and past frames per second attained by scene
+	stats = new Stats();
+	stats.domElement.style.position = 'absolute';
+	stats.domElement.style.bottom = '0px';
+	stats.domElement.style.zIndex = 100;
+	document.body.appendChild( stats.domElement );
 }
 
 function onSceneLoaded(result)
@@ -170,4 +181,5 @@ function animate() {
         //camera.lookAt( scene.position );
         renderer.render( scene, camera );
     }
+    stats.update();
 }
