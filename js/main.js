@@ -1,14 +1,18 @@
 var sceneName = argv.scene ? argv.scene : "game";
 
 var camera, scene, projector, renderer;
-var objects = [];
+
+var sceneBox = new THREE.Box3();
+//var objects = [];
 var particleMaterial;
 
-var unitSpawnPosition;
+var unitSpawnPosition = null;
 
-var selectedObject  = null;
+var selectedObject = null;
 
 var units = [];
+
+var scenePathGraph = [];
 
 var clock = new THREE.Clock();
 
@@ -21,19 +25,24 @@ var buttonAddUnit = document.getElementById("addUnit");
 init();
 animate();
 
-function log(text)
-{
+function log(text) {
     console.log(text);
 }
 
 function init() {
-    renderer = new THREE.WebGLRenderer();
+    if ( Detector.webgl )
+		renderer = new THREE.WebGLRenderer( {antialias:false} );
+	else
+		renderer = new THREE.CanvasRenderer();
+
 	renderer.setSize( window.innerWidth, window.innerHeight );
     renderer.shadowMapEnabled = true;
 	document.body.appendChild( renderer.domElement );
 
 	camera = new THREE.PerspectiveCamera( 67, window.innerWidth / window.innerHeight, 1, 100 );
     scene = new THREE.Scene();
+
+    projector = new THREE.Projector();
 
     //addTestCubes();
 
@@ -44,13 +53,25 @@ function init() {
     //document.addEventListener( 'mousedown', onDocumentMouseDown, false );
     document.getElementsByTagName("canvas")[0].addEventListener( 'mousedown', onDocumentMouseDown, false );
 	window.addEventListener( 'resize', onWindowResize, false );
+
+    // displays current and past frames per second attained by scene
+	stats = new Stats();
+	stats.domElement.style.position = 'absolute';
+	stats.domElement.style.bottom = '0px';
+	stats.domElement.style.zIndex = 100;
+	document.body.appendChild( stats.domElement );
 }
 
 function onSceneLoaded(result)
 {
+    // fix YZ
+//    for (var i in result.objects) {
+//        flipYZ(result.objects[i].position);
+//    }
     //result.lights["default_light"].position = result.objects["Light1"].position
-    camera.position = flipYZ(result.objects["CameraMain"].position); // flipYZ for fix incorrect camera export
+    camera.position = result.objects["CameraMain"].position; 
     var look = result.objects["CameraTarget"].position;
+    camera.rotation.set(0);
     camera.lookAt(look);
 
     //scene.fog = new THREE.Fog( bgColor, 0.00025, 15 );
@@ -75,46 +96,78 @@ function onSceneLoaded(result)
    	light.position = result.objects["Light1"].position;
    	scene.add( light );
 
-//    var meshLoader = new THREE.JSONLoader();
-//    meshLoader.load( "models/base02.js", function( geometry, materials ) {
-//        mesh = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );
-//        scene.add( mesh );
-//		mesh.rotation.x += .2;
-//    });
-
     // add all meshes from loaded to scene
-    for (object in result.objects) {
-        var obj = result.objects[object];
-        if (obj instanceof THREE.Mesh) {
+    for (var i in result.objects) {
+        var obj = result.objects[i];
+        if (obj instanceof THREE.Mesh) {      
+            computeBoundigBox(obj);
+
+            sceneBox.expandByPoint(obj.geometry.boundingBox.min);
+            sceneBox.expandByPoint(obj.geometry.boundingBox.max);
+
             //obj.castShadow = true;
             obj.receiveShadow = true;
             scene.add(obj);
         }
     }
+    createMapGraph(1);
 
     // set specific
     unitSpawnPosition = result.objects["BaseGreen.Spawn"].position;
 }
 
+function createMapGraph(unitSize)
+{
+    var shift = 0.15;
+    for (var x = sceneBox.min.x; x < sceneBox.max.x; x+=unitSize+shift) {
+        var boxes = [];
+        for (var z = sceneBox.min.z; z < sceneBox.max.z; z+=unitSize+shift) {
+            var box = new THREE.Box3();
+
+            box.min.x = x;            
+            box.min.y = sceneBox.min.y + shift;
+            box.min.z = z;        
+
+            box.max.x = x + unitSize;            
+            box.max.y = sceneBox.min.y + unitSize + shift;
+            box.max.z = z + unitSize;
+
+            boxes.push(box);
+            var isIntersected = false;
+            for (var i in scene.__objects) {
+                var obj = scene.__objects[i];
+                //log (obj.name.length);
+                if (obj instanceof THREE.Mesh && obj.name.length && obj.geometry.boundingBox.isIntersectionBox(box)) {
+                    isIntersected = true;
+                    break;
+                }
+            }
+            
+            drawBoundingBox(box, isIntersected ? 0xaa0000 : 0x00aa00);
+        }
+        scenePathGraph.push(boxes);
+    }      
+}
+
 function onDocumentMouseDown( event ) {
     event.preventDefault();
 
-    var projector = new THREE.Projector();
     var vector = new THREE.Vector3((event.clientX/window.innerWidth)*2-1, -(event.clientY/window.innerHeight)*2+1, 0.5);
     projector.unprojectVector( vector, camera );
 
     var raycaster = new THREE.Raycaster( camera.position, vector.sub(camera.position).normalize() );
-    var intersects = raycaster.intersectObjects( scene.__objects );
+    var intersects = raycaster.intersectObjects( scene.__objects, false );
 
-    log(intersects);
+    //log(intersects);
 
     if (intersects.length > 0) {
         log("intersects[0]="+intersects[0].object.name);
+        log(intersects[0].point);
         if(selectedObject) log("selectedObject="+selectedObject.name);
 
         if (selectedObject && selectedObject.name === "Unit" && intersects[0].object.name === "Floor") {
             log("GO!");
-            for ( var i = 0; i < units.length; i++ ) {
+            for ( var i in units) {
                 if (units[i].mesh.position == selectedObject.position)
                     units[i].goal = new THREE.Vector3(intersects[0].point.x, units[i].mesh.position.y, intersects[0].point.z);
             }
@@ -170,4 +223,5 @@ function animate() {
         //camera.lookAt( scene.position );
         renderer.render( scene, camera );
     }
+    stats.update();
 }
