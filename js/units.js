@@ -5,11 +5,13 @@ function Unit0(scene,loc,loader) {
     this.closeEnough = 0.9;
     this.goal = loc;
     this.dx = new THREE.Vector3();
+    this.caster = new THREE.Raycaster();
+    this.caster.far = 2;
     var that = this;
     this.onGeometry = function(geom, mats) {
 //        that.mesh = new THREE.Mesh( geom, new THREE.MeshFaceMaterial(mats));
         that.mesh.useQuaternion = true;
-        that.mesh.position = new THREE.Vector3(loc.x, loc.y, loc.z);
+        that.mesh.position = loc.clone();
         that.mesh.castShadow = true;
         //that.mesh.receiveShadow = true;
         that.mesh.name = "Unit";
@@ -29,6 +31,17 @@ function Unit0(scene,loc,loader) {
         if (this.dx.length() > this.closeEnough) {
             var moveDist = dt * this.speed;
             this.mesh.translateZ(moveDist);
+        }
+
+        var direction = new THREE.Vector3(0,0,1).applyQuaternion(this.mesh.quaternion);
+
+        this.caster.set(this.mesh.position, direction);
+
+        var collisions = this.caster.intersectObjects(scene.__objects, false);
+        if (collisions.length) {
+            for (var i = 0; i < collisions.length; i++)
+                log(collisions[i].object.name);
+            this.goal = this.mesh.position;
         }
     };
 }
