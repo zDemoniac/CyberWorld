@@ -13,7 +13,7 @@ function lookTowards(fromObject,toPosition, dTheta) {
     var eye = fromObject.position;
     var center = toPosition;
     var up = new THREE.Vector3(0,1,0);
-    var mat = new THREE.Matrix4();
+    var mat = new THREE.Matrix4(0);
     mat.lookAt(center,eye,up);
     var quat1 = new THREE.Quaternion();
     quat1.setFromRotationMatrix( mat );
