@@ -100,7 +100,7 @@ function onSceneLoaded(result)
 
             // add bases
             if (!obj.name.indexOf(player.baseName))  {
-                obj.userData = player.addBase(100, result.objects[obj.name+".Spawn"].position);
+                obj.userData = player.addBase(result.objects[obj.name+".Spawn"].position, obj);
             }
         }
     }
