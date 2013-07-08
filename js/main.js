@@ -7,11 +7,15 @@ var sceneMap = new SceneMap();
 var clock = new THREE.Clock(true);
 
 var player = new Player(10, "baseGreen");
-//var computer = new Player(10, "baseRed");
+var computer = new Player(10, "baseRed");
+
+var ai = new AI(computer);
 
 //var bgColor = 0x3A3938;
-
+var infoTimer;
 var infoText = document.getElementById("infoText");
+var infoTextEnergy = document.getElementById("infoTextEnergy");
+var infoTextHealth = document.getElementById("infoTextHealth");
 var infoWindow = document.getElementById("infoWindow");
 var buttonAddUnit = document.getElementById("addUnit");
 
@@ -51,6 +55,9 @@ function init() {
 	stats.domElement.style.bottom = '0px';
 	stats.domElement.style.zIndex = 100;
 	document.body.appendChild( stats.domElement );
+
+    // update UI
+    infoTimer = window.setInterval(UpdateInfoPanel, 500);
 }
 
 function onSceneLoaded(result)
@@ -102,6 +109,10 @@ function onSceneLoaded(result)
             if (!obj.name.indexOf(player.baseName))  {
                 obj.userData = player.addBase(result.objects[obj.name+".Spawn"].position, obj);
             }
+
+            if (!obj.name.indexOf(computer.baseName))  {
+                obj.userData = computer.addBase(result.objects[obj.name+".Spawn"].position, obj);
+            }
         }
     }
 
@@ -137,30 +148,33 @@ function onDocumentMouseDown( event ) {
     
             if (!player.selectedObject.name.indexOf(player.baseName))
                 player.selectedBase = data;
-
-            UpdateInfoPanel();
         }
     }
 }
 
 function UpdateInfoPanel()
 {
+    infoTextEnergy.innerHTML = "Energy: " + Math.floor(player.energy);
+    
     var object = player.selectedObject;
+    if (!object) return;
 
     infoText.innerHTML = "Object: " + object.name + "<br>";
     if(object.userData.health)
-        infoText.innerHTML += "Health: " + object.userData.health + "<br>";
+        infoTextHealth.innerHTML = "Health: " + object.userData.health;
     //infoWindow.style.display = "inline";
 
     if (!object.name.indexOf(player.baseName)) {
         buttonAddUnit.style.display = "inline";
+        if (player.energy < player.selectedBase.unitCost) buttonAddUnit.disabled = true;
+        else buttonAddUnit.disabled = false;
     } else {
         buttonAddUnit.style.display = "none";
     }
 }
 
 function addUnit() {
-    player.addUnit(100, scene, sceneMap);
+    player.addUnit(100, 0x00ff00, scene, sceneMap);
 }
 
 function onInfoWindowClick() {
@@ -179,9 +193,11 @@ function animate() {
     requestAnimationFrame( animate );
     var deltaTime = clock.getDelta();
 
-	if (scene != null && camera != null) {
+	if (scene != null && scene.__objects.length && camera != null) {
         player.update(deltaTime);
-        //camera.lookAt( scene.position );
+        computer.update(deltaTime);
+        ai.update(deltaTime);
+
         renderer.render( scene, camera );
     }
     stats.update();

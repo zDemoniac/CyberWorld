@@ -35,6 +35,14 @@
 	div.buttonWrapper {
 	    text-align: center;
 	}
+
+    #infoTextEnergy {
+        color: #77ff77;
+    }
+
+    #infoTextHealth {
+        color: rgb(190, 81, 81);
+    }
 	
 	button.flat {
 	    border: 1px solid #000000;
@@ -45,7 +53,9 @@
 	</head>
 	<body>
         <div class="transbox" id="infoWindow"  onclick="onInfoWindowClick();">
+            <p id="infoTextEnergy"></p>
             <p id="infoText">click object</p>
+            <p id="infoTextHealth"></p>
             <div class="buttonWrapper">
                 <button class="flat" id="addUnit" style="display: none" onclick="addUnit();">add unit</button>
             </div>
@@ -59,6 +69,7 @@
 		<script src="js/base.js"></script>
         <script src="js/map.js"></script>
 		<script src="js/player.js"></script>
+        <script src="js/ai.js"></script>
         <!-- <script src="js/steering.js"></script> -->
         <!-- <script src="js/test.js"></script> -->
         <script src="js/main.js"></script>
