@@ -23,8 +23,8 @@ function log(text) {
 }
 
 function init() {
-    if ( Detector.webgl )
-		renderer = new THREE.WebGLRenderer( {antialias:false} );
+    if ( Detector.webgl && !argv.canvas)
+		renderer = new THREE.WebGLRenderer( {antialias:true} );
 	else
 		renderer = new THREE.CanvasRenderer();
 
@@ -106,7 +106,7 @@ function onSceneLoaded(result)
     }
 
     // path finding
-    sceneMap.createMapGraph(scene, 1);
+    sceneMap.createMapGraph(scene, 1.1);
 }
 
 function onDocumentMouseDown( event ) {
@@ -129,17 +129,24 @@ function onDocumentMouseDown( event ) {
             player.goUnit(intersects[0].point);
         }
         else {
+            player.deselectAll();
             player.selectedObject = intersects[0].object;
+            var data = player.selectedObject.userData;
+            
+            if(data.hasOwnProperty("select")) data.select(true);
+    
             if (!player.selectedObject.name.indexOf(player.baseName))
-                player.selectedBase = player.selectedObject.userData;
+                player.selectedBase = data;
 
-            showInfoPanel(player.selectedObject);
+            UpdateInfoPanel();
         }
     }
 }
 
-function showInfoPanel(object)
+function UpdateInfoPanel()
 {
+    var object = player.selectedObject;
+
     infoText.innerHTML = "Object: " + object.name + "<br>";
     if(object.userData.health)
         infoText.innerHTML += "Health: " + object.userData.health + "<br>";
