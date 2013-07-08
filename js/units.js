@@ -1,25 +1,30 @@
 
-function Unit0(health, scene,loc,loader,sceneMap) {
+function Unit0(health, scene, posBase, posSpawn, loader,sceneMap) {
     //this.rotSpeed = 1.0;
     this.health =  health;
     this.speed = 2.5;
-    this.closeEnough = 0.4;
-    this.goalPath = null;
+    this.closeEnough = 0.1;
+    this.goalPath = [];
     this.goalCurrent = 0;
     this.dx = new THREE.Vector3();
     this.sceneMap = sceneMap;
     //this.caster = new THREE.Raycaster();
     //this.caster.far = 2;
+
     var that = this;
     this.onGeometry = function(geom, mats) {
 //        that.mesh = new THREE.Mesh( geom, new THREE.MeshFaceMaterial(mats));
         that.mesh.useQuaternion = true;
-        that.mesh.position = loc.clone();
+        that.mesh.position = posBase.clone();
         that.mesh.castShadow = true;
         //that.mesh.receiveShadow = true;
         that.mesh.name = "Unit";
         that.mesh.userData = that;
         scene.add(that.mesh);
+
+        // go from base to spawn point
+        this.goalPath.push(sceneMap.getSceneGraphPosition(new THREE.Vector3(posBase.x, posSpawn.y, posBase.z)));
+        this.goalPath.push(sceneMap.getSceneGraphPosition(posSpawn));
     };
 //    loader.load( "models/unit0.js", onGeometry );
     this.mesh = new THREE.Mesh( new THREE.CubeGeometry( 1, 1, 1 ), //new THREE.MeshBasicMaterial({ color: 0x00aa00}));
@@ -38,6 +43,7 @@ function Unit0(health, scene,loc,loader,sceneMap) {
         var end = this.sceneMap.pathGraph.nodes[posEnd.x][posEnd.y];
         this.goalPath = astar.search(this.sceneMap.pathGraph.nodes, start, end, true);
         this.goalCurrent = 0;
+        //log(this.goalPath);
         //for (var i in this.goalPath)
         //    drawBoundingBox(scenePathGraphBoxes[this.goalPath[i].x][this.goalPath[i].y], 0x0000aa, "debug");  // debug          
     };
@@ -57,8 +63,13 @@ function Unit0(health, scene,loc,loader,sceneMap) {
                 this.mesh.translateZ(moveDist);
             }
             else {
-                if (this.goalCurrent < this.goalPath.length-1) this.goalCurrent++;
-                else this.goalPath = null;
+                if (this.goalCurrent < this.goalPath.length-1) { 
+                    this.goalCurrent++;
+                }
+                else  {
+                    this.goalPath = null;
+                    this.goalCurrent = 0;
+                }
             }
         }
 

@@ -13,14 +13,16 @@ function Player(startEnergy, baseName)
 
     var loader = new THREE.JSONLoader();
 
-    this.addBase = function(health, unitSpawnPosition) {
-        var base = new Base(health, unitSpawnPosition);
+    this.addBase = function(unitSpawnPosition, mesh) {
+        var base = new Base(unitSpawnPosition, mesh);
         this.bases.push(base);
         return base;
     };
 
     this.addUnit = function(health, scene, sceneMap) {
-        this.units.push(new Unit0(health, scene, this.selectedBase.unitSpawnPosition, loader, sceneMap));
+        this.units.push(new Unit0(health, scene, 
+                                  this.selectedBase.mesh.position, 
+                                  this.selectedBase.unitSpawnPosition, loader, sceneMap));
     };
 
     this.goUnit = function(point) {
@@ -34,7 +36,6 @@ function Player(startEnergy, baseName)
         // generate energy
         this.energy += this.energyGenerationSpeed * dt;
         var i;
-        for (i = 0; i < this.bases.length; i++) this.bases[i].update(dt);
         for (i = 0; i < this.units.length; i++) this.units[i].update(dt);
     };
 }
