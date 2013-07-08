@@ -1,7 +1,7 @@
 function Player(startEnergy, baseName)
 {
     this.energy = startEnergy;
-    this.energyGenerationSpeed = 0.1;
+    this.energyGenerationSpeed = 0.2;
 
     this.baseName = baseName;
 
@@ -19,10 +19,11 @@ function Player(startEnergy, baseName)
         return base;
     };
 
-    this.addUnit = function(health, scene, sceneMap) {
-        this.units.push(new Unit0(health, scene, 
+    this.addUnit = function(health, color, scene, sceneMap) {
+        this.units.push(new Unit0(health, color, scene,
                                   this.selectedBase.mesh.position, 
                                   this.selectedBase.unitSpawnPosition, loader, sceneMap));
+        this.energy -= this.selectedBase.unitCost;
     };
 
     this.goUnit = function(point) {
@@ -42,6 +43,7 @@ function Player(startEnergy, baseName)
     this.update = function(dt) {
         // generate energy
         this.energy += this.energyGenerationSpeed * dt;
+        
         var i;
         for (i = 0; i < this.units.length; i++) this.units[i].update(dt);
     };

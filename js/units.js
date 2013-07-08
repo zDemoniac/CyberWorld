@@ -1,5 +1,5 @@
 
-function Unit0(health, scene, posBase, posSpawn, loader,sceneMap) {
+function Unit0(health, color, scene, posBase, posSpawn, loader,sceneMap) {
     //this.rotSpeed = 1.0;
     this.health =  health;
     this.speed = 2.5;
@@ -8,13 +8,15 @@ function Unit0(health, scene, posBase, posSpawn, loader,sceneMap) {
     this.goalCurrent = 0;
     this.dx = new THREE.Vector3();
     this.sceneMap = sceneMap;
+    this.cost = 5;
+    this.color = color;
     //this.caster = new THREE.Raycaster();
     //this.caster.far = 2;
 
     var that = this;
     this.onGeometry = function(geom, mats) {
 //        that.mesh = new THREE.Mesh( geom, new THREE.MeshFaceMaterial(mats));
-        that.mesh = new THREE.Mesh( geom, new THREE.MeshPhongMaterial( { ambient: 0x009000, color: 0x00ff00 } ) );
+        that.mesh = new THREE.Mesh( geom, new THREE.MeshPhongMaterial( { ambient: color & 0x999999, color: color } ) );
         that.mesh.useQuaternion = true;
         that.mesh.position = posBase.clone();
         that.mesh.castShadow = true;
@@ -24,7 +26,7 @@ function Unit0(health, scene, posBase, posSpawn, loader,sceneMap) {
         scene.add(that.mesh);
 
         // outline
-        var outlineMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00, side: THREE.BackSide } );
+        var outlineMaterial = new THREE.MeshBasicMaterial( { color: that.color, side: THREE.BackSide } );
         that.meshOutline = new THREE.Mesh( geom, outlineMaterial );
         that.meshOutline.name = that.mesh.name + ".Outline";
     	that.meshOutline.position = that.mesh.position;
