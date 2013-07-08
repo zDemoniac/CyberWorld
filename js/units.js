@@ -14,6 +14,7 @@ function Unit0(health, scene, posBase, posSpawn, loader,sceneMap) {
     var that = this;
     this.onGeometry = function(geom, mats) {
 //        that.mesh = new THREE.Mesh( geom, new THREE.MeshFaceMaterial(mats));
+        that.mesh = new THREE.Mesh( geom, new THREE.MeshPhongMaterial( { ambient: 0x009000, color: 0x00ff00 } ) );
         that.mesh.useQuaternion = true;
         that.mesh.position = posBase.clone();
         that.mesh.castShadow = true;
@@ -22,14 +23,23 @@ function Unit0(health, scene, posBase, posSpawn, loader,sceneMap) {
         that.mesh.userData = that;
         scene.add(that.mesh);
 
+        // outline
+        var outlineMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00, side: THREE.BackSide } );
+        that.meshOutline = new THREE.Mesh( geom, outlineMaterial );
+        that.meshOutline.name = that.mesh.name + ".Outline";
+    	that.meshOutline.position = that.mesh.position;
+        that.meshOutline.quaternion = this.mesh.quaternion;
+        that.meshOutline.useQuaternion = true;
+	    that.meshOutline.scale.multiplyScalar(1.05);
+	    that.meshOutline.visible = false;
+	    scene.add(that.meshOutline);
+
         // go from base to spawn point
         this.goalPath.push(sceneMap.getSceneGraphPosition(new THREE.Vector3(posBase.x, posSpawn.y, posBase.z)));
         this.goalPath.push(sceneMap.getSceneGraphPosition(posSpawn));
     };
-//    loader.load( "models/unit0.js", onGeometry );
-    this.mesh = new THREE.Mesh( new THREE.CubeGeometry( 1, 1, 1 ), //new THREE.MeshBasicMaterial({ color: 0x00aa00}));
-        new THREE.MeshPhongMaterial( { ambient: 0x009000, color: 0x00ff00 } ) );
-    this.onGeometry(null, null);
+//    loader.load( "models/unit0.js", onGeometry );    
+    this.onGeometry(new THREE.CubeGeometry( 1, 1, 1 ), null);
 
     this.goTo = function(point) {
         var posStart = this.sceneMap.getSceneGraphPosition(this.mesh.position);
@@ -46,6 +56,11 @@ function Unit0(health, scene, posBase, posSpawn, loader,sceneMap) {
         //log(this.goalPath);
         //for (var i in this.goalPath)
         //    drawBoundingBox(scenePathGraphBoxes[this.goalPath[i].x][this.goalPath[i].y], 0x0000aa, "debug");  // debug          
+    };
+
+    this.select = function(flag)
+    {
+        this.meshOutline.visible = flag;      
     };
 
     this.update = function(dt) {

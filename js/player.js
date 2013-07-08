@@ -31,6 +31,13 @@ function Player(startEnergy, baseName)
                 this.units[i].goTo(new THREE.Vector3(point.x, player.units[i].mesh.position.y, point.z));
         }
     };
+
+    this.deselectAll = function()
+    {
+        var i;
+        for (i = 0; i < this.units.length; i++) this.units[i].select(false);
+        for (i = 0; i < this.bases.length; i++) this.bases[i].select(false);
+    };
     
     this.update = function(dt) {
         // generate energy
