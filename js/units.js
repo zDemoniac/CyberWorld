@@ -17,7 +17,6 @@ function Unit0(health, color, scene, posBase, posSpawn, loader,sceneMap) {
     this.onGeometry = function(geom, mats) {
 //        that.mesh = new THREE.Mesh( geom, new THREE.MeshFaceMaterial(mats));
         that.mesh = new THREE.Mesh( geom, new THREE.MeshPhongMaterial( { ambient: color & 0x999999, color: color } ) );
-        that.mesh.useQuaternion = true;
         that.mesh.position = posBase.clone();
         that.mesh.castShadow = true;
         //that.mesh.receiveShadow = true;
@@ -31,7 +30,6 @@ function Unit0(health, color, scene, posBase, posSpawn, loader,sceneMap) {
         that.meshOutline.name = that.mesh.name + ".Outline";
     	that.meshOutline.position = that.mesh.position;
         that.meshOutline.quaternion = this.mesh.quaternion;
-        that.meshOutline.useQuaternion = true;
 	    that.meshOutline.scale.multiplyScalar(1.05);
 	    that.meshOutline.visible = false;
 	    scene.add(that.meshOutline);

@@ -10,7 +10,6 @@ function  Base(unitSpawnPosition, mesh)
     this.meshOutline.name = this.mesh.name + ".Outline";
     this.meshOutline.position = this.mesh.position;
     this.meshOutline.quaternion = this.mesh.quaternion;
-    this.meshOutline.useQuaternion = true;
 	this.meshOutline.scale.multiplyScalar(1.02);
 	this.meshOutline.visible = false;
 	scene.add(this.meshOutline);

@@ -73,7 +73,7 @@ function onSceneLoaded(result)
 
     //scene.fog = new THREE.Fog( bgColor, 0.00025, 15 );
                 
-    scene.add( new THREE.AmbientLight( 0xF3F3F3 ) );
+    scene.add( new THREE.AmbientLight( 0xbbbbbb ) );
 
   	var light = new THREE.DirectionalLight( 0xdfebff, 0.1 );
 
