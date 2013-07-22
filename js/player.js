@@ -18,9 +18,10 @@ function Player(startEnergy, baseName, scene, sceneMap)
 
     this.loader = new THREE.JSONLoader();
 
-    this.addBase = function(unitSpawnPosition, mesh) {
-        var base = new Base(unitSpawnPosition, mesh);
+    this.addBase = function(unitSpawnPosition, mesh, color) {
+        var base = new Base(unitSpawnPosition, mesh, color);
         this.bases.push(base);
+		this.selectedBase = base;
         return base;
     };
 
@@ -42,6 +43,8 @@ function Player(startEnergy, baseName, scene, sceneMap)
 		scene.remove(this.units[i].mesh);
 		scene.remove(this.units[i].meshOutline);
 		scene.remove(this.units[i].bullet.mesh);
+		delete this.units[i].bullet;
+		delete this.units[i];
 		this.units.splice(i,1);
 		this.selectedObject = null;
 	};
@@ -67,7 +70,7 @@ function Player(startEnergy, baseName, scene, sceneMap)
         var i;
         for (i = 0; i < this.units.length; i++) {
 			var unit = this.units[i];
-			if (unit.health <= 0) this.removeUnit(unit);
+			if (unit.health <= 1) this.removeUnit(unit); // 1 because I saw 0.25 health unit
 			unit.update(dt);
 		}
     };

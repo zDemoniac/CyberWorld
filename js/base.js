@@ -1,11 +1,11 @@
-function  Base(unitSpawnPosition, mesh)
+function  Base(unitSpawnPosition, mesh, color)
 {
     this.mesh = mesh;
     this.unitSpawnPosition = unitSpawnPosition;
     this.unitCost = 5;  
 
     // outline
-    var outlineMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00, side: THREE.BackSide } );
+    var outlineMaterial = new THREE.MeshBasicMaterial( { color: color, side: THREE.BackSide } );
     this.meshOutline = new THREE.Mesh( mesh.geometry, outlineMaterial );
     this.meshOutline.name = this.mesh.name + ".Outline";
     this.meshOutline.position = this.mesh.position;

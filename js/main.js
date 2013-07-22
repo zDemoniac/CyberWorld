@@ -117,11 +117,11 @@ function onSceneLoaded(result)
 
             // add bases
             if (!obj.name.indexOf(player.baseName))  {
-                obj.userData = player.addBase(result.objects[obj.name+".Spawn"].position, obj);
+                obj.userData = player.addBase(result.objects[obj.name+".Spawn"].position, obj, 0x00ff00);
             }
 
             if (!obj.name.indexOf(computer.baseName))  {
-                obj.userData = computer.addBase(result.objects[obj.name+".Spawn"].position, obj);
+                obj.userData = computer.addBase(result.objects[obj.name+".Spawn"].position, obj, 0xff0000);
             }
         }
     }
@@ -150,6 +150,8 @@ function onDocumentMouseDown( event ) {
         }
         else {
             player.deselectAll();
+			computer.deselectAll();
+
             player.selectedObject = intersects[0].object;
             var data = player.selectedObject.userData;
             
@@ -159,6 +161,8 @@ function onDocumentMouseDown( event ) {
                 player.selectedBase = data;
         }
     }
+
+	UpdateInfoPanel();
 }
 
 function UpdateInfoPanel()
