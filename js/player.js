@@ -1,5 +1,8 @@
-function Player(startEnergy, baseName)
+function Player(startEnergy, baseName, scene, sceneMap)
 {
+	this.scene = scene;
+	this.sceneMap = sceneMap;
+
     this.energy = startEnergy;
     this.energyGenerationSpeed = 0.2;
 
@@ -11,7 +14,9 @@ function Player(startEnergy, baseName)
     this.bases = [];
     this.units = [];
 
-    var loader = new THREE.JSONLoader();
+	this.enemy = null;
+
+    this.loader = new THREE.JSONLoader();
 
     this.addBase = function(unitSpawnPosition, mesh) {
         var base = new Base(unitSpawnPosition, mesh);
@@ -19,12 +24,27 @@ function Player(startEnergy, baseName)
         return base;
     };
 
-    this.addUnit = function(health, color, scene, sceneMap) {
-        this.units.push(new Unit0(health, color, scene,
+    this.addUnit = function(health, color) {
+        this.units.push(new Unit0(health, color, this.scene,
                                   this.selectedBase.mesh.position, 
-                                  this.selectedBase.unitSpawnPosition, loader, sceneMap));
+                                  this.selectedBase.unitSpawnPosition, 
+								  this.loader, this.sceneMap, this.enemy));
         this.energy -= this.selectedBase.unitCost;
     };
+
+	this.removeUnit = function(unit) {
+		var i = this.units.indexOf(unit);
+		if (i === -1) {
+			log("removeUnit index -1");
+			return;
+		}
+
+		scene.remove(this.units[i].mesh);
+		scene.remove(this.units[i].meshOutline);
+		scene.remove(this.units[i].bullet.mesh);
+		this.units.splice(i,1);
+		this.selectedObject = null;
+	};
 
     this.goUnit = function(point) {
         for ( var i = 0; i < this.units.length; i++) {
@@ -45,6 +65,10 @@ function Player(startEnergy, baseName)
         this.energy += this.energyGenerationSpeed * dt;
         
         var i;
-        for (i = 0; i < this.units.length; i++) this.units[i].update(dt);
+        for (i = 0; i < this.units.length; i++) {
+			var unit = this.units[i];
+			if (unit.health <= 0) this.removeUnit(unit);
+			unit.update(dt);
+		}
     };
 }
