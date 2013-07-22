@@ -110,9 +110,10 @@ function Unit0(health, color, scene, posBase, posSpawn, loader,sceneMap, enemy) 
             }
         }
 
-		this.bullet.update(dt);
-		
-		this.fireEnemies();
+		if (this.bullet) {
+			this.bullet.update(dt);
+			this.fireEnemies();
+		}
 //        var direction = new THREE.Vector3(0,0,1).applyQuaternion(this.mesh.quaternion);
 //
 //        this.caster.set(this.mesh.position, direction);
