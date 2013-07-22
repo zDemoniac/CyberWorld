@@ -2,14 +2,14 @@ var sceneName = argv.scene ? argv.scene : "game";
 
 var camera, scene, projector, renderer, stats;
 
-var sceneMap = new SceneMap();
+var sceneMap;
 
 var clock = new THREE.Clock(true);
 
-var player = new Player(10, "baseGreen");
-var computer = new Player(10, "baseRed");
+var player;
+var computer;
 
-var ai = new AI(computer);
+var ai;
 
 //var bgColor = 0x3A3938;
 var infoTimer;
@@ -38,6 +38,16 @@ function init() {
 
 	camera = new THREE.PerspectiveCamera( 67, window.innerWidth / window.innerHeight, 1, 100 );
     scene = new THREE.Scene();
+
+	sceneMap = new SceneMap();
+
+	player = new Player(5, "baseGreen", scene, sceneMap);
+	computer = new Player(5, "baseRed", scene, sceneMap);
+
+	player.enemy = computer;
+	computer.enemy = player;
+
+	ai = new AI(computer, player);
 
     projector = new THREE.Projector();
 
@@ -132,8 +142,7 @@ function onDocumentMouseDown( event ) {
 
     if (intersects.length > 0) {
         log("intersects[0]="+intersects[0].object.name);
-        log(intersects[0].point);
-        if(player.selectedObject) log("selectedObject="+player.selectedObject.name);
+        //log(intersects[0].point);
 
         if (player.selectedObject && player.selectedObject.name === "Unit" && intersects[0].object.name === "Floor") {
             //log("GO!");
@@ -154,27 +163,33 @@ function onDocumentMouseDown( event ) {
 
 function UpdateInfoPanel()
 {
-    infoTextEnergy.innerHTML = "Energy: " + Math.floor(player.energy);
+    infoTextEnergy.innerHTML = "Hum. Energy: " + Math.floor(player.energy);
+	infoTextEnergy.innerHTML += "<br>Comp.Energy: " + Math.floor(computer.energy); //dbg
     
     var object = player.selectedObject;
-    if (!object) return;
 
-    infoText.innerHTML = "Object: " + object.name + "<br>";
-    if(object.userData.health)
-        infoTextHealth.innerHTML = "Health: " + object.userData.health;
+    infoText.innerHTML = "Object: " + (object ? object.name  : "") + "<br>";
+    if(object && object.userData.health)
+        infoTextHealth.innerHTML = "Health: " + Math.floor(object.userData.health);
+	else
+		infoTextHealth.innerHTML = "";
     //infoWindow.style.display = "inline";
+
+	if(!object) return;
 
     if (!object.name.indexOf(player.baseName)) {
         buttonAddUnit.style.display = "inline";
-        if (player.energy < player.selectedBase.unitCost) buttonAddUnit.disabled = true;
-        else buttonAddUnit.disabled = false;
+        if (player.energy < player.selectedBase.unitCost) 
+			buttonAddUnit.disabled = true;
+        else 
+			buttonAddUnit.disabled = false;
     } else {
         buttonAddUnit.style.display = "none";
     }
 }
 
 function addUnit() {
-    player.addUnit(100, 0x00ff00, scene, sceneMap);
+    player.addUnit(100, 0x00ff00);
 }
 
 function onInfoWindowClick() {
@@ -196,7 +211,8 @@ function animate() {
 	if (scene != null && scene.__objects.length && camera != null) {
         player.update(deltaTime);
         computer.update(deltaTime);
-        ai.update(deltaTime);
+        
+		ai.update(deltaTime);
 
         renderer.render( scene, camera );
     }

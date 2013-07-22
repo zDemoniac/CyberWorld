@@ -12,7 +12,7 @@ function SceneMap() {
         for (var x = 0; x < this.pathGraphBoxes.length; x++) {
             for (var y = 0; y < this.pathGraphBoxes[x].length; y++) {
                 if (this.pathGraphBoxes[x][y].containsPoint(point)) {
-                    log("found: x="+x+" y="+y);                         // debug
+                    //log("found: x="+x+" y="+y);                         // debug
                     return new THREE.Vector2(x,y);
                 }
             }
