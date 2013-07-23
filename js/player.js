@@ -1,7 +1,9 @@
-function Player(startEnergy, baseName, scene, sceneMap)
+function Player(startEnergy, baseName, parent)
 {
-	this.scene = scene;
-	this.sceneMap = sceneMap;
+	this.scene = parent.scene;
+	this.sceneMap = parent.sceneMap;
+
+	this.camera = parent.camera;
 
     this.energy = startEnergy;
     this.energyGenerationSpeed = 0.2;
@@ -19,17 +21,14 @@ function Player(startEnergy, baseName, scene, sceneMap)
     this.loader = new THREE.JSONLoader();
 
     this.addBase = function(unitSpawnPosition, mesh, color) {
-        var base = new Base(unitSpawnPosition, mesh, color);
+        var base = new Base(unitSpawnPosition, mesh, this.scene, color);
         this.bases.push(base);
 		this.selectedBase = base;
         return base;
     };
 
     this.addUnit = function(health, color) {
-        this.units.push(new Unit0(health, color, this.scene,
-                                  this.selectedBase.mesh.position, 
-                                  this.selectedBase.unitSpawnPosition, 
-								  this.loader, this.sceneMap, this.enemy));
+        this.units.push(new Unit0(health, color, this));
         this.energy -= this.selectedBase.unitCost;
     };
 
@@ -40,9 +39,9 @@ function Player(startEnergy, baseName, scene, sceneMap)
 			return;
 		}
 
-		scene.remove(this.units[i].mesh);
-		scene.remove(this.units[i].meshOutline);
-		scene.remove(this.units[i].bullet.mesh);
+		this.scene.remove(this.units[i].mesh);
+		this.scene.remove(this.units[i].meshOutline);
+		this.scene.remove(this.units[i].bullet.mesh);
 		delete this.units[i].bullet;
 		delete this.units[i];
 		this.units.splice(i,1);
@@ -52,7 +51,7 @@ function Player(startEnergy, baseName, scene, sceneMap)
     this.goUnit = function(point) {
         for ( var i = 0; i < this.units.length; i++) {
             if (this.units[i].mesh.position == this.selectedObject.position)
-                this.units[i].goTo(new THREE.Vector3(point.x, player.units[i].mesh.position.y, point.z));
+                this.units[i].goTo(new THREE.Vector3(point.x, this.units[i].mesh.position.y, point.z));
         }
     };
 

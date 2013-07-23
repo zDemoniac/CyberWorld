@@ -1,4 +1,4 @@
-function Unit0(health, color, scene, posBase, posSpawn, loader,sceneMap, enemy) {
+function Unit0(health, color, parent) {
     //this.rotSpeed = 1.0;
     this.health =  health;
     this.speed = 2.5;
@@ -6,12 +6,9 @@ function Unit0(health, color, scene, posBase, posSpawn, loader,sceneMap, enemy) 
     this.goalPath = [];
     this.goalCurrent = 0;
     this.dx = new THREE.Vector3();
-    this.sceneMap = sceneMap;
 	this.fireRange = 10;
-    this.cost = 5;
     this.color = color;
-	this.bullet = new Bullet(color);
-	this.enemy = enemy;
+	this.bullet = new Bullet(color, parent.scene);
     //this.caster = new THREE.Raycaster();
     //this.caster.far = 2;
 
@@ -19,12 +16,12 @@ function Unit0(health, color, scene, posBase, posSpawn, loader,sceneMap, enemy) 
     this.onGeometry = function(geom, mats) {
 //        that.mesh = new THREE.Mesh( geom, new THREE.MeshFaceMaterial(mats));
         that.mesh = new THREE.Mesh( geom, new THREE.MeshPhongMaterial( { ambient: color & 0x999999, color: color } ) );
-        that.mesh.position = posBase.clone();
+        that.mesh.position = parent.selectedBase.mesh.position.clone();
         that.mesh.castShadow = true;
         //that.mesh.receiveShadow = true;
         that.mesh.name = "Unit";
         that.mesh.userData = that;
-        scene.add(that.mesh);
+        parent.scene.add(that.mesh);
 
         // outline
         var outlineMaterial = new THREE.MeshBasicMaterial( { color: that.color, side: THREE.BackSide } );
@@ -34,11 +31,12 @@ function Unit0(health, color, scene, posBase, posSpawn, loader,sceneMap, enemy) 
         that.meshOutline.quaternion = this.mesh.quaternion;
 	    that.meshOutline.scale.multiplyScalar(1.05);
 	    that.meshOutline.visible = false;
-	    scene.add(that.meshOutline);
-
+	    parent.scene.add(that.meshOutline);
+		var posEnd = parent.selectedBase.unitSpawnPosition;
+		var posStart = new THREE.Vector3(that.mesh.position.x, posEnd.y, that.mesh.position.z);
         // go from base to spawn point
-        this.goalPath.push(sceneMap.getSceneGraphPosition(new THREE.Vector3(posBase.x, posSpawn.y, posBase.z)));
-        this.goalPath.push(sceneMap.getSceneGraphPosition(posSpawn));
+        that.goalPath.push(parent.sceneMap.getSceneGraphPosition(posStart));
+        that.goalPath.push(parent.sceneMap.getSceneGraphPosition(posEnd));
     };
 //    loader.load( "models/unit0.js", onGeometry );    
     this.onGeometry(new THREE.CubeGeometry( 1, 1, 1 ), null);
@@ -48,16 +46,16 @@ function Unit0(health, color, scene, posBase, posSpawn, loader,sceneMap, enemy) 
 		//log("len: " + this.dx.length());
 		if(this.dx.length() <= this.closeEnough*2) return;
 		
-        var posStart = this.sceneMap.getSceneGraphPosition(this.mesh.position);
-        var posEnd = this.sceneMap.getSceneGraphPosition(point);
+        var posStart = parent.sceneMap.getSceneGraphPosition(this.mesh.position);
+        var posEnd = parent.sceneMap.getSceneGraphPosition(point);
         if (!posStart || !posEnd) {
             log("can't go there :( start: " + posStart + ", end: " + posEnd);
             return;
         }
     
-        var start = this.sceneMap.pathGraph.nodes[posStart.x][posStart.y];
-        var end = this.sceneMap.pathGraph.nodes[posEnd.x][posEnd.y];
-        this.goalPath = astar.search(this.sceneMap.pathGraph.nodes, start, end, true);
+        var start = parent.sceneMap.pathGraph.nodes[posStart.x][posStart.y];
+        var end = parent.sceneMap.pathGraph.nodes[posEnd.x][posEnd.y];
+        this.goalPath = astar.search(parent.sceneMap.pathGraph.nodes, start, end, true);
         this.goalCurrent = 0;
         //log(this.goalPath);
         //for (var i in this.goalPath)
@@ -75,14 +73,18 @@ function Unit0(health, color, scene, posBase, posSpawn, loader,sceneMap, enemy) 
 
 	this.fireEnemies = function() {
 		var dx = new THREE.Vector3(0);
-		for (var i=0; i<this.enemy.units.length; i++) {
-			var enemy = this.enemy.units[i];
+		for (var i=0; i<parent.enemy.units.length; i++) {
+			var enemy = parent.enemy.units[i];
 			dx.subVectors(this.mesh.position, enemy.mesh.position);
 			if (dx.length() < this.fireRange) {
 				this.bullet.fire(this.mesh.position, enemy);
 				break;
 			}
 		}		
+	};
+
+	this.addHealthBar = function ()	{
+			  
 	};
 
     this.update = function(dt) {
@@ -92,7 +94,7 @@ function Unit0(health, color, scene, posBase, posSpawn, loader,sceneMap, enemy) 
         if (this.goalPath && this.goalPath.length) {   
             var currentNode = this.goalPath[this.goalCurrent];  
             //log(currentNode);       
-            var currentPoint = sceneMap.pathGraphBoxes[currentNode.x][currentNode.y].center();
+            var currentPoint = parent.sceneMap.pathGraphBoxes[currentNode.x][currentNode.y].center();
             this.mesh.lookAt(currentPoint);
             this.dx.subVectors(currentPoint, this.mesh.position);
             if (this.dx.length() > this.closeEnough) {
@@ -114,6 +116,11 @@ function Unit0(health, color, scene, posBase, posSpawn, loader,sceneMap, enemy) 
 			this.bullet.update(dt);
 			this.fireEnemies();
 		}
+		// move health bar
+		//var pos2d = toScreenXY(this.mesh.position, parent.camera, window.innerWidth, window.innerHeight);
+		//this.healthBar.left = pos2d.x;
+		//this.healthBar.top = pos2d.y;
+
 //        var direction = new THREE.Vector3(0,0,1).applyQuaternion(this.mesh.quaternion);
 //
 //        this.caster.set(this.mesh.position, direction);

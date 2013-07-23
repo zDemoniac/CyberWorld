@@ -1,3 +1,7 @@
+function log(text) {
+    console.log(text);
+}
+
 function computeBoundingBox(mesh)
 {
     mesh.geometry.boundingBox = new THREE.Box3();
@@ -85,6 +89,18 @@ function flipYZ(v)
     var tmp = v.z;   
     v.z = -v.y;
     v.y = tmp;
+}
+
+function toScreenXY( position, camera, width, height) {
+
+    var pos = position.clone();
+    projScreenMat = new THREE.Matrix4();
+    projScreenMat.multiply( camera.projectionMatrix, camera.matrixWorldInverse );
+    projScreenMat.multiplyVector3( pos );
+
+    return { x: ( pos.x + 1 ) * width / 2,
+         y: ( - pos.y + 1) * height / 2 };
+
 }
 
 var argv = function () {

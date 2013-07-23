@@ -1,4 +1,4 @@
-function  Bullet(color)
+function  Bullet(color, scene)
 {
 	this.goal = new THREE.Vector3();
 	this.dx = new THREE.Vector3();
@@ -37,6 +37,7 @@ function  Bullet(color)
 		if (this.dx.length() > .1) {
 			var moveDist = dt * this.speed;
 			this.mesh.translateZ(moveDist);
+			if(this.target.health <= 1) this.mesh.visible = false;
         }
 		else {
 			this.mesh.visible = false;
