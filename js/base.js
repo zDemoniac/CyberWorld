@@ -1,4 +1,4 @@
-function  Base(unitSpawnPosition, mesh, color)
+function  Base(unitSpawnPosition, mesh, scene, color)
 {
     this.mesh = mesh;
     this.unitSpawnPosition = unitSpawnPosition;
