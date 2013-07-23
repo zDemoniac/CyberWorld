@@ -1,6 +1,7 @@
 function Unit0(health, color, parent) {
     //this.rotSpeed = 1.0;
     this.health =  health;
+	this.healthMax = health;
     this.speed = 2.5;
     this.closeEnough = 0.1;
     this.goalPath = [];
@@ -13,6 +14,16 @@ function Unit0(health, color, parent) {
     //this.caster.far = 2;
 
     var that = this;
+
+	this.clean = function() {
+		parent.scene.remove(this.mesh);
+		parent.scene.remove(this.meshOutline);
+		this.bullet.clean();
+		delete this.bullet;
+		
+		this.healthBar.remove();
+	};
+
     this.onGeometry = function(geom, mats) {
 //        that.mesh = new THREE.Mesh( geom, new THREE.MeshFaceMaterial(mats));
         that.mesh = new THREE.Mesh( geom, new THREE.MeshPhongMaterial( { ambient: color & 0x999999, color: color } ) );
@@ -38,8 +49,12 @@ function Unit0(health, color, parent) {
         that.goalPath.push(parent.sceneMap.getSceneGraphPosition(posStart));
         that.goalPath.push(parent.sceneMap.getSceneGraphPosition(posEnd));
     };
-//    loader.load( "models/unit0.js", onGeometry );    
-    this.onGeometry(new THREE.CubeGeometry( 1, 1, 1 ), null);
+
+	this.init = function() {
+		this.addHealthBar();
+	//    loader.load( "models/unit0.js", onGeometry );    
+	    this.onGeometry(new THREE.CubeGeometry( 1, 1, 1 ), null);
+	};
 
     this.goTo = function(point) {
 		this.dx.subVectors(point, this.mesh.position);
@@ -84,7 +99,16 @@ function Unit0(health, color, parent) {
 	};
 
 	this.addHealthBar = function ()	{
-			  
+		this.healthBar = document.createElement('meter');	
+		this.healthBar.innerHTML = "unit";
+		this.healthBar.setAttribute('class','healthBar');
+		this.healthBar.max = this.healthMax;
+		this.healthBar.value = this.health;
+		document.body.appendChild(this.healthBar);
+	};
+
+	this.updateHealth = function() {
+		this.healthBar.value = this.health;
 	};
 
     this.update = function(dt) {
@@ -116,10 +140,14 @@ function Unit0(health, color, parent) {
 			this.bullet.update(dt);
 			this.fireEnemies();
 		}
+		
 		// move health bar
-		//var pos2d = toScreenXY(this.mesh.position, parent.camera, window.innerWidth, window.innerHeight);
-		//this.healthBar.left = pos2d.x;
-		//this.healthBar.top = pos2d.y;
+		if(this.healthBar && this.isMoving()) {
+			var pos2d = calc2Dpoint(this.mesh, parent.camera, parent.renderer);
+			var dx = 25-(pos2d.x-300)/60;
+			this.healthBar.style.left = pos2d.x - dx + "px"; // TODO
+			this.healthBar.style.top = pos2d.y - 40 + "px";
+		}
 
 //        var direction = new THREE.Vector3(0,0,1).applyQuaternion(this.mesh.quaternion);
 //
@@ -132,4 +160,6 @@ function Unit0(health, color, parent) {
 //            this.goal = this.mesh.position;
 //        }
     };
+
+	this.init();
 }

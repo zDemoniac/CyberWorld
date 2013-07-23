@@ -16,6 +16,8 @@ function Player(startEnergy, baseName, parent)
     this.bases = [];
     this.units = [];
 
+	this.renderer = parent.renderer;
+
 	this.enemy = null;
 
     this.loader = new THREE.JSONLoader();
@@ -39,10 +41,7 @@ function Player(startEnergy, baseName, parent)
 			return;
 		}
 
-		this.scene.remove(this.units[i].mesh);
-		this.scene.remove(this.units[i].meshOutline);
-		this.scene.remove(this.units[i].bullet.mesh);
-		delete this.units[i].bullet;
+		this.units[i].clean();
 		delete this.units[i];
 		this.units.splice(i,1);
 		this.selectedObject = null;

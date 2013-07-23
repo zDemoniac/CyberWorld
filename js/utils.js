@@ -91,15 +91,19 @@ function flipYZ(v)
     v.y = tmp;
 }
 
-function toScreenXY( position, camera, width, height) {
+function calc2Dpoint(object, camera, renderer) {
 
-    var pos = position.clone();
-    projScreenMat = new THREE.Matrix4();
-    projScreenMat.multiply( camera.projectionMatrix, camera.matrixWorldInverse );
-    projScreenMat.multiplyVector3( pos );
+	var widthHalf = renderer.domElement.width/2;
+	var heightHalf = renderer.domElement.height/2;
+	
+	var vector = new THREE.Vector3();
+	var projector = new THREE.Projector();
+	projector.projectVector( vector.getPositionFromMatrix( object.matrixWorld ), camera );
+	
+	vector.x = ( vector.x * widthHalf ) + widthHalf;
+	vector.y = - ( vector.y * heightHalf ) + heightHalf;
 
-    return { x: ( pos.x + 1 ) * width / 2,
-         y: ( - pos.y + 1) * height / 2 };
+    return vector;
 
 }
 

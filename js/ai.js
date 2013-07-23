@@ -9,7 +9,7 @@ function  AI(computer, human)
     this.update = function(deltaTime) {
         if (this.computer.energy > this.computer.selectedBase.unitCost) this.addUnit();
 
-		for(var i=0; i<this.computer.units.length; i++) {
+		for(var i=0; i < this.computer.units.length; i++) {
 			var compUnit = this.computer.units[i];
 			var humUnit = this.human.units[0];
 			if(!compUnit.isMoving() && humUnit) {
