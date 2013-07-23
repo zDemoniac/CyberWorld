@@ -1,4 +1,4 @@
-function  Bullet(color)
+function  Bullet(color, scene)
 {
 	this.goal = new THREE.Vector3();
 	this.dx = new THREE.Vector3();
@@ -9,6 +9,11 @@ function  Bullet(color)
 	this.target = null;
 
 	var that = this;
+
+	this.clean = function() {
+		scene.remove(this.mesh);
+	};
+
     this.onGeometry = function(geom, mats) {
 //        that.mesh = new THREE.Mesh( geom, new THREE.MeshFaceMaterial(mats));
         that.mesh = new THREE.Mesh( geom, new THREE.MeshPhongMaterial( { ambient: that.color & 0xffffff, color: that.color } ) );
@@ -37,12 +42,14 @@ function  Bullet(color)
 		if (this.dx.length() > .1) {
 			var moveDist = dt * this.speed;
 			this.mesh.translateZ(moveDist);
+			if(this.target.health <= 1) this.mesh.visible = false;
         }
 		else {
 			this.mesh.visible = false;
 			// do damage
 			var dmg = Math.random()*(this.damageMax - this.damageMin) + this.damageMin;
 			this.target.health -= dmg;
+			this.target.updateHealth();
 			//log("damaged by: " + dmg);
         }
 	};

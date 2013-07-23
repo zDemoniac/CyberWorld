@@ -1,3 +1,7 @@
+function log(text) {
+    console.log(text);
+}
+
 function computeBoundingBox(mesh)
 {
     mesh.geometry.boundingBox = new THREE.Box3();
@@ -85,6 +89,22 @@ function flipYZ(v)
     var tmp = v.z;   
     v.z = -v.y;
     v.y = tmp;
+}
+
+function calc2Dpoint(object, camera, renderer) {
+
+	var widthHalf = renderer.domElement.width/2;
+	var heightHalf = renderer.domElement.height/2;
+	
+	var vector = new THREE.Vector3();
+	var projector = new THREE.Projector();
+	projector.projectVector( vector.getPositionFromMatrix( object.matrixWorld ), camera );
+	
+	vector.x = ( vector.x * widthHalf ) + widthHalf;
+	vector.y = - ( vector.y * heightHalf ) + heightHalf;
+
+    return vector;
+
 }
 
 var argv = function () {

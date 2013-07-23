@@ -25,6 +25,12 @@
 	    opacity:0.7;
 	    /*display: none;*/
 	}
+
+	meter.healthBar {
+		position: fixed;
+		height: 5px;
+		width: 50px;
+	}
 	
 	div.transbox p {
 	    margin: 4px 4px;
@@ -53,12 +59,12 @@
 	</style>
 	</head>
 	<body>
-        <div class="transbox" id="infoWindow"  onclick="onInfoWindowClick();">
+        <div class="transbox" id="infoWindow">
             <p id="infoTextEnergy"></p>
             <p id="infoText">click object</p>
             <p id="infoTextHealth"></p>
             <div class="buttonWrapper">
-                <button class="flat" id="addUnit" style="display: none" onclick="addUnit();">add unit</button>
+                <button class="flat" id="addUnit" style="display: none">add unit</button>
             </div>
         </div>
 		<script src="js/three.min.js"></script>
