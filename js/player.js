@@ -29,9 +29,18 @@ function Player(startEnergy, baseName, parent)
         return base;
     };
 
-    this.addUnit = function(health, color) {
-        this.units.push(new Unit0(health, color, this));
-        this.energy -= this.selectedBase.unitCost;
+    this.addUnit = function(parts, color) {
+        var price = 0;
+        var health = 0;
+        for (var i = 0; i < parts.length; i++) {
+            price += this.selectedBase.getPartPrice(parts[i]);
+            health += this.selectedBase.getPartHealth(parts[i]);
+        }
+
+		if (this.energy > price) {
+	        this.units.push(new Unit0(parts, color, health, this));
+	        this.energy -= price;
+		}
     };
 
 	this.removeUnit = function(unit) {
@@ -49,8 +58,8 @@ function Player(startEnergy, baseName, parent)
 
     this.goUnit = function(point) {
         for ( var i = 0; i < this.units.length; i++) {
-            if (this.units[i].mesh.position == this.selectedObject.position)
-                this.units[i].goTo(new THREE.Vector3(point.x, this.units[i].mesh.position.y, point.z));
+            if (this.units[i].mesh == this.selectedObject)
+                this.units[i].goTo(new THREE.Vector3(point.x, this.units[i].body.position.y, point.z));
         }
     };
 
