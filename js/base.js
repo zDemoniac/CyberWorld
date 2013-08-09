@@ -2,7 +2,6 @@ function  Base(unitSpawnPosition, mesh, scene, color)
 {
     this.mesh = mesh;
     this.unitSpawnPosition = unitSpawnPosition;
-    this.unitCost = 5;  
 
     // outline
     var outlineMaterial = new THREE.MeshBasicMaterial( { color: color, side: THREE.BackSide } );
@@ -17,5 +16,23 @@ function  Base(unitSpawnPosition, mesh, scene, color)
     this.select = function(flag)
     {
         this.meshOutline.visible = flag;      
+    };
+
+    this.getPartPrice = function(name) {
+        switch (name) {
+            case "chassis1": return 2; break;
+            case "torso1": return 3;  break;
+            case "gun1": return 1;  break;
+            default : log("no price for"+name); break;
+        }
+    };
+
+    this.getPartHealth = function(name) {
+        switch (name) {
+            case "chassis1": return 50; break;
+            case "torso1": return 100;  break;
+            case "gun1": return 10;  break;
+            default : log("no health for"+name); break;
+        }
     };
 }
