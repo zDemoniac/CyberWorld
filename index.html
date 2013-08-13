@@ -40,8 +40,9 @@
 	    text-align: center;
 	}
 	
-	div.buttonWrapper {
+	#buttonWrapper {
 	    text-align: center;
+		color: rgb(200, 200, 200);
 	}
 
     #infoTextEnergy {
@@ -51,6 +52,10 @@
     #infoTextHealth {
         color: rgb(190, 81, 81);
     }
+
+	input.parts {
+		
+	}
 	
 	button.flat {
 	    border: 1px solid #000000;
@@ -64,8 +69,7 @@
             <p id="infoTextEnergy"></p>
             <p id="infoText">click object</p>
             <p id="infoTextHealth"></p>
-            <div class="buttonWrapper">
-                <button class="flat" id="addUnit" style="display: none">add unit</button>
+            <div id="buttonWrapper" style="display: none">
             </div>
         </div>
 		<script src="js/three.min.js"></script>

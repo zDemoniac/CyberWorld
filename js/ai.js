@@ -28,7 +28,7 @@ function  AI(computer, human)
                 }
             }
             compUnit.closeEnough = 4;
-            compUnit.goTo(humUnit.body.position.clone());
+            if(!compUnit.isMoving()) compUnit.goTo(humUnit.body.position.clone());
 		}
     };
 

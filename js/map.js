@@ -21,7 +21,7 @@ function SceneMap() {
     };
 
     this.createMapGraph = function(scene, unitSize) {
-        var shift = 0.005;
+        var shift = 0.001;
         var flags = [];
         for (var x = this.box.min.x; x < this.box.max.x; x += unitSize+shift) {
             var boxes = [];
@@ -49,7 +49,7 @@ function SceneMap() {
                     }
                 }
                 flagsRow.push(isIntersected ? 0 : 1);
-                //drawBoundingBox(box, isIntersected ? 0xaa0000 : 0x00aa00);        // debug
+                //drawBoundingBox(scene, box, isIntersected ? 0xaa0000 : 0x00aa00);        // debug
             }
             this.pathGraphBoxes.push(boxes);
             flags.push(flagsRow);

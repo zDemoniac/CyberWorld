@@ -27,12 +27,14 @@ function  Bullet(damage, rangeSq, reloadSec, color, scene)
     this.onGeometry(new THREE.CubeGeometry( .1, .1, .4 ), null);
 
 	this.fire = function(position, target) {
-        if (this.mesh.visible) return; // already firing
-        if (position.distanceToSquared(target.body.position) > this.fireRangeSq) return; // far
+        if (this.mesh.visible) return false; // already firing
+        if (position.distanceToSquared(target.body.position) > this.fireRangeSq) return false; // far
 
 		this.mesh.visible = true;
 		this.mesh.position = position.clone();
 		this.target = target;
+
+        return true;
 	};
 
 	this.update = function(dt) {

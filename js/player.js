@@ -33,8 +33,8 @@ function Player(startEnergy, baseName, parent)
         var price = 0;
         var health = 0;
         for (var i = 0; i < parts.length; i++) {
-            price += this.selectedBase.getPartPrice(parts[i]);
-            health += this.selectedBase.getPartHealth(parts[i]);
+            price += this.selectedBase.parts[parts[i]].price;
+            health += this.selectedBase.parts[parts[i]].health;
         }
 
 		if (this.energy > price) {

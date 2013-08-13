@@ -18,21 +18,10 @@ function  Base(unitSpawnPosition, mesh, scene, color)
         this.meshOutline.visible = flag;      
     };
 
-    this.getPartPrice = function(name) {
-        switch (name) {
-            case "chassis1": return 2; break;
-            case "torso1": return 3;  break;
-            case "gun1": return 1;  break;
-            default : log("no price for"+name); break;
-        }
-    };
-
-    this.getPartHealth = function(name) {
-        switch (name) {
-            case "chassis1": return 50; break;
-            case "torso1": return 100;  break;
-            case "gun1": return 10;  break;
-            default : log("no health for"+name); break;
-        }
-    };
+	this.parts = { 	"chassis1": {price: 2, health: 50},
+					"chassis2": {price: 3, health: 75},
+				   	"torso1": {price: 3, health: 100},
+				   	"torso2": {price: 5, health: 150},
+					"gun1": {price: 2, health: 10},
+					"gun2": {price: 4, health: 20}};
 }

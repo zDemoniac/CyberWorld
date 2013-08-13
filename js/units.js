@@ -8,6 +8,7 @@ function Unit0(parts, color, health, parent) {
     this.goalCurrent = 0;
     this.color = color;
     this.gun = null;
+    this.gunMesh = null;
     this.body = new THREE.Object3D();
     this.body.name = "UnitObj";
     this.body.position = parent.selectedBase.mesh.position.clone();
@@ -24,7 +25,10 @@ function Unit0(parts, color, health, parent) {
             this.parts.push(part);
 
             if(!parts[i].indexOf("torso")) this.mesh = part.mesh;
-            if(!parts[i].indexOf("gun")) this.gun = new Bullet([10, 20], 16, .7, color, parent.scene);
+            if(!parts[i].indexOf("gun")) {
+                this.gun = new Bullet([10, 20], 16, .7, color, parent.scene);
+                this.gunMesh = part.mesh;
+            }
         }
         if(this.gun) this.gunTimer = window.setInterval(this.fireEnemies, this.gun.reload);
     };
@@ -51,20 +55,20 @@ function Unit0(parts, color, health, parent) {
 
     this.goTo = function(point) {
 		if(this.body.position.distanceToSquared(point) <= this.closeEnough*2) {
-            this.body.lookAt(point);
             return;
         }
 		
         var posStart = parent.sceneMap.getSceneGraphPosition(this.body.position);
         var posEnd = parent.sceneMap.getSceneGraphPosition(point);
         if (!posStart || !posEnd) {
-            log("can't go there :( start: " + posStart + ", end: " + posEnd);
+            log("can't go there :(");
+            log([posStart, posEnd]);
             return;
         }
     
         var start = parent.sceneMap.pathGraph.nodes[posStart.x][posStart.y];
         var end = parent.sceneMap.pathGraph.nodes[posEnd.x][posEnd.y];
-        this.goalPath = astar.search(parent.sceneMap.pathGraph.nodes, start, end, true);
+        this.goalPath = astar.search(parent.sceneMap.pathGraph.nodes, start, end, false);
         this.goalCurrent = 0;
         //log(this.goalPath);
         //for (var i in this.goalPath)
@@ -83,8 +87,13 @@ function Unit0(parts, color, health, parent) {
 
 	this.fireEnemies = function() {
 		var dx = new THREE.Vector3(0);
-		for (var i = 0; i < parent.enemy.units.length; i++)
-			that.gun.fire(that.body.position, parent.enemy.units[i]);
+		for (var i = 0; i < parent.enemy.units.length; i++)   {
+            if(that.gun.fire(that.body.position, parent.enemy.units[i])) {
+				// TODO:
+                //that.gunMesh.quaternion.set(0,0,0,1);
+                //that.body.lookAt(parent.enemy.units[i].body.position);
+            }
+        }
 	};
 
 	this.addHealthBar = function ()	{
@@ -98,7 +107,7 @@ function Unit0(parts, color, health, parent) {
 	};
 
 	this.updateHealth = function() {
-		this.healthBar.value = this.health;
+		if(this.healthBar) this.healthBar.value = this.health;
 	};
 
     this.update = function(dt) {
@@ -125,7 +134,9 @@ function Unit0(parts, color, health, parent) {
             }
         }
 
-		if (this.gun) this.gun.update(dt);
+		if (this.gun) {
+            this.gun.update(dt);
+        }
 		
 		// move health bar
 		if(this.healthBar && this.isMoving()) {
